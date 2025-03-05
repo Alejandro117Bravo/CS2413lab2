@@ -1,0 +1,103 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+
+typedef struct {
+    int* data;
+    int top;
+    int capacity;
+} Stack;
+
+
+Stack* createStack(int capacity) {
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    stack->data = (int*)malloc(capacity * sizeof(int));
+    stack->top = -1;
+    stack->capacity = capacity;
+    return stack;
+}
+
+
+bool isEmpty(Stack* stack) {
+    return stack->top == -1;
+}
+
+
+void push(Stack* stack, int x) {
+    stack->data[++stack->top] = x;
+}
+
+
+int pop(Stack* stack) {
+    return stack->data[stack->top--];
+}
+
+int peek(Stack* stack) {
+    return stack->data[stack->top];
+}
+
+
+void freeStack(Stack* stack) {
+    free(stack->data);
+    free(stack);
+}
+
+
+typedef struct {
+    Stack* inStack;
+    Stack* outStack;
+} MyQueue;
+
+
+MyQueue* myQueueCreate() {
+    MyQueue* queue = (MyQueue*)malloc(sizeof(MyQueue));
+    queue->inStack = createStack(100);  
+    queue->outStack = createStack(100);
+    return queue;
+}
+
+
+void myQueuePush(MyQueue* obj, int x) {
+    push(obj->inStack, x);
+}
+
+
+int myQueuePop(MyQueue* obj) {
+    if (isEmpty(obj->outStack)) {
+        while (!isEmpty(obj->inStack)) {
+            push(obj->outStack, pop(obj->inStack));
+        }
+    }
+    return pop(obj->outStack);
+}
+
+
+int myQueuePeek(MyQueue* obj) {
+    if (isEmpty(obj->outStack)) {
+        while (!isEmpty(obj->inStack)) {
+            push(obj->outStack, pop(obj->inStack));
+        }
+    }
+    return peek(obj->outStack);
+}
+
+
+bool myQueueEmpty(MyQueue* obj) {
+    return isEmpty(obj->inStack) && isEmpty(obj->outStack);
+
+
+void myQueueFree(MyQueue* obj) {
+    freeStack(obj->inStack);
+    freeStack(obj->outStack);
+    free(obj);
+}
+
+/**
+ * Your MyQueue struct will be instantiated and called as such:
+ * MyQueue* obj = myQueueCreate();
+ * myQueuePush(obj, x);
+ * int param_2 = myQueuePop(obj);
+ * int param_3 = myQueuePeek(obj);
+ * bool param_4 = myQueueEmpty(obj);
+ * myQueueFree(obj);
+ */
